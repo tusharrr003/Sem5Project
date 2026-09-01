@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoPredict AI — Cryptocurrency Price Forecaster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #090d16;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.25);
+            --accent-cyan: #06b6d4;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-dim: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 4rem;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo), var(--accent-purple));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+        }
+
+        .logo-text h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, #c7d2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 0.4rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #a5b4fc;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-emerald);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* Control Panel Form */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            margin-bottom: 2rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr;
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        @media (max-width: 850px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 0.85rem 1.1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(15, 23, 42, 1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2rem;
+            padding-right: 2.5rem;
+        }
+
+        select.form-control option {
+            background-color: #0f172a;
+            color: #f3f4f6;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 0.95rem 1.75rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(99, 102, 241, 0.5);
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Alert / Error */
+        .alert-error {
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fca5a5;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Metrics Bar */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--accent-indigo), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-card:hover::after {
+            opacity: 1;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .badge-bullish {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-bearish {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        /* Chart Section */
+        .chart-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .chart-title h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .chart-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .chart-legend-custom {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .legend-hist { background: var(--accent-cyan); }
+        .legend-pred { background: var(--accent-purple); }
+
+        .chart-container {
+            position: relative;
+            height: 420px;
+            width: 100%;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.75rem 2rem;
+        }
+
+        .table-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.85rem 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-group">
+                <div class="logo-icon">▲</div>
+                <div class="logo-text">
+                    <h1>CryptoPredict AI</h1>
+                    <p>Machine Learning Market Intelligence & Trend Forecaster</p>
+                </div>
+            </div>
+            <div class="header-badge">
+                <span class="live-dot"></span>
+                <span>CoinGecko Live API</span>
+            </div>
+        </header>
+
+        <!-- Prediction Controls -->
+        <div class="card">
+            <form method="POST" action="/">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="coin_id">Select Cryptocurrency</label>
+                        <select name="coin_id" id="coin_id" class="form-control" required>
+                            {% for coin in coins %}
+                                <option value="{{ coin.id if coin.id is defined else coin }}" {% if (coin_id == coin.id or coin_id == coin) %}selected{% endif %}>
+                                    {% if coin.name is defined %}
+                                        {{ coin.name }} ({{ coin.symbol|upper }})
+                                    {% else %}
+                                        {{ coin|capitalize }}
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="days">Historical Analysis Window</label>
+                        <select name="days" id="days" class="form-control" required>
+                            <option value="7" {% if days == '7' or not days %}selected{% endif %}>Last 7 Days (Hourly)</option>
+                            <option value="14" {% if days == '14' %}selected{% endif %}>Last 14 Days</option>
+                            <option value="30" {% if days == '30' %}selected{% endif %}>Last 30 Days</option>
+                            <option value="90" {% if days == '90' %}selected{% endif %}>Last 90 Days</option>
+                            <option value="180" {% if days == '180' %}selected{% endif %}>Last 180 Days</option>
+                            <option value="365" {% if days == '365' %}selected{% endif %}>Last 365 Days (1 Year)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        <span>Generate Forecast</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if error %}
+        <div class="alert-error">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        {% if stats %}
+        <!-- Market & AI Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Current Price</span>
+                <span class="metric-value">${{ "{:,.2f}".format(stats.current_price) }}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Forecasted Target</span>
+                <span class="metric-value">${{ "{:,.2f}".format(stats.target_price) }}</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Predicted Change</span>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
+                    <span class="metric-value" style="font-size: 1.4rem;">
+                        {{ "{:+.2f}%".format(stats.change_pct) }}
+                    </span>
+                    {% if stats.change_pct >= 0 %}
+                    <span class="badge badge-bullish">▲ Bullish</span>
+                    {% else %}
+                    <span class="badge badge-bearish">▼ Bearish</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Model Fit (R²)</span>
+                <span class="metric-value" style="font-size: 1.4rem; color: #a5b4fc;">{{ "{:.3f}".format(stats.r2_score) }}</span>
+            </div>
+        </div>
+
+        <!-- Interactive Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <h2>{{ coin_id|capitalize }} Price Trajectory & Linear Projection</h2>
+                    <p>Historical trends with Scikit-Learn regression forecast</p>
+                </div>
+                <div class="chart-legend-custom">
+                    <div class="legend-item">
+                        <span class="legend-color legend-hist"></span>
+                        <span>Historical Price</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-pred"></span>
+                        <span>AI Projection</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="predictionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Prediction Table -->
+        <div class="table-card">
+            <div class="table-title">Forecast Data Breakdown</div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Forecast Date</th>
+                            <th>Projected Price (USD)</th>
+                            <th>Expected Shift vs Current</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date, price in predictions.items() %}
+                        <tr>
+                            <td style="color: #cbd5e1;">{{ date }}</td>
+                            <td style="color: #67e8f9; font-weight: 600;">${{ "{:,.2f}".format(price) }}</td>
+                            <td>
+                                {% set shift = ((price - stats.current_price) / stats.current_price) * 100 %}
+                                <span style="color: {{ '#34d399' if shift >= 0 else '#fb7185' }};">
+                                    {{ "{:+.2f}%".format(shift) }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% elif not error %}
+        <div class="card empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>Ready to Analyze Crypto Trends</h3>
+            <p>Select an asset and time window above, then click <strong>Generate Forecast</strong> to train the model and view live predictions.</p>
+        </div>
+        {% endif %}
+
+        <footer>
+            <p>Powered by CoinGecko API & Scikit-Learn Machine Learning • Antigravity AI</p>
+        </footer>
+    </div>
+
+    {% if chart_data %}
+    <script>
+        const chartData = {{ chart_data | tojson }};
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+
+        // Create gradient for historical dataset
+        const gradientHist = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientHist.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
+        gradientHist.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+        // Create gradient for prediction dataset
+        const gradientPred = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientPred.addColorStop(0, 'rgba(139, 92, 246, 0.35)');
+        gradientPred.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Historical Close ($)',
+                        data: chartData.historical_prices,
+                        borderColor: '#06b6d4',
+                        backgroundColor: gradientHist,
+                        borderWidth: 2.5,
+                        fill: true,
+                        pointRadius: chartData.labels.length > 50 ? 0 : 3,
+                        pointHoverRadius: 6,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'AI Forecast ($)',
+                        data: chartData.forecast_prices,
+                        borderColor: '#a855f7',
+                        backgroundColor: gradientPred,
+                        borderWidth: 2.5,
+                        borderDash: [6, 6],
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleFont: { family: 'Outfit', size: 13 },
+                        bodyFont: { family: 'JetBrains Mono', size: 13 },
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                if (context.parsed.y !== null) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                }
+                                return null;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.04)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#9ca3af',
+                            font: { family: 'Outfit', size: 11 },
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 8
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#9ca3af',
+                            font: { family: 'JetBrains Mono', size: 11 },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
