@@ -1,53 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoPredict AI — Cryptocurrency Price Forecaster</title>
+    <title>CryptoPredict AI — Real-Time Cryptocurrency Price Analysis & Trend Prediction</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg-primary: #090d16;
-            --bg-secondary: #111827;
-            --bg-card: rgba(17, 24, 39, 0.75);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(99, 102, 241, 0.25);
-            --accent-cyan: #06b6d4;
-            --accent-indigo: #6366f1;
-            --accent-purple: #8b5cf6;
-            --accent-emerald: #10b981;
-            --accent-rose: #f43f5e;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --text-dim: #6b7280;
+        /* ==========================================================================
+           Theme Tokens & Color Variables
+           ========================================================================== */
+        :root[data-theme="light"] {
+            --bg-page: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #F1F5F9;
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --text-main: #0F172A;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+            --border-focus: #2563EB;
+            --color-bullish: #16A34A;
+            --color-bearish: #DC2626;
+            --color-neutral: #D97706;
+            --badge-bullish-bg: rgba(22, 163, 74, 0.12);
+            --badge-bearish-bg: rgba(220, 38, 38, 0.12);
+            --badge-neutral-bg: rgba(217, 119, 6, 0.12);
+            --chart-grid: rgba(15, 23, 42, 0.06);
+            --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+            --card-sub-bg: #F8FAFC;
         }
 
+        :root[data-theme="dark"] {
+            --bg-page: #0F172A;
+            --bg-card: #111827;
+            --bg-card-hover: #1E293B;
+            --primary: #3B82F6;
+            --primary-hover: #60A5FA;
+            --text-main: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+            --border-focus: #3B82F6;
+            --color-bullish: #22C55E;
+            --color-bearish: #EF4444;
+            --color-neutral: #F59E0B;
+            --badge-bullish-bg: rgba(34, 197, 94, 0.15);
+            --badge-bearish-bg: rgba(239, 68, 68, 0.15);
+            --badge-neutral-bg: rgba(245, 158, 11, 0.15);
+            --chart-grid: rgba(255, 255, 255, 0.05);
+            --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
+            --card-sub-bg: #0b111e;
+        }
+
+        /* Base Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
 
         body {
             font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-primary);
+            background-color: var(--bg-page);
             color: var(--text-main);
             min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
-            background-attachment: fixed;
-            line-height: 1.6;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 1280px;
+            max-width: 1360px;
             margin: 0 auto;
-            padding: 2.5rem 1.5rem 4rem;
+            padding: 2rem 1.5rem 4rem;
         }
 
         /* Header */
@@ -55,9 +82,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .logo-group {
@@ -69,7 +98,7 @@
         .logo-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo), var(--accent-purple));
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
             border-radius: 14px;
             display: flex;
             align-items: center;
@@ -77,75 +106,123 @@
             font-weight: 800;
             font-size: 1.5rem;
             color: #ffffff;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
         }
 
         .logo-text h1 {
-            font-size: 1.6rem;
+            font-size: 1.55rem;
             font-weight: 700;
             letter-spacing: -0.02em;
-            background: linear-gradient(to right, #ffffff, #c7d2fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
         }
 
         .logo-text p {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--text-secondary);
         }
 
-        .header-badge {
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .live-price-ticker-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            padding: 0.4rem 0.9rem;
+            gap: 0.6rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.45rem 1rem;
             border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #a5b4fc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-card);
         }
 
         .live-dot {
             width: 8px;
             height: 8px;
-            background: var(--accent-emerald);
+            background: var(--color-bullish);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent-emerald);
-            animation: pulse 2s infinite;
+            box-shadow: 0 0 8px var(--color-bullish);
+            animation: pulse 1.8s infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.85); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
+
+        .theme-toggle-btn, .refresh-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .theme-toggle-btn:hover, .refresh-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+        }
+
+        /* Flash animations on price updates */
+        @keyframes flashGreen {
+            0% { background-color: rgba(34, 197, 94, 0.35); }
+            100% { background-color: transparent; }
+        }
+
+        @keyframes flashRed {
+            0% { background-color: rgba(239, 68, 68, 0.35); }
+            100% { background-color: transparent; }
+        }
+
+        .price-flash-up {
+            animation: flashGreen 1.2s ease-out;
+            border-radius: 6px;
+        }
+
+        .price-flash-down {
+            animation: flashRed 1.2s ease-out;
+            border-radius: 6px;
+        }
+
+        /* Card Component */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 2rem;
         }
 
         /* Control Panel Form */
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            margin-bottom: 2rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: var(--border-glow);
-        }
-
         .form-grid {
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 1.5fr 1.2fr 1.5fr 1fr;
+            gap: 1.25rem;
             align-items: end;
+            margin-bottom: 1.25rem;
         }
 
-        @media (max-width: 850px) {
+        @media (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -154,235 +231,304 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.5rem;
         }
 
         .form-group label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         .form-control {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: var(--bg-page);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 0.85rem 1.1rem;
+            padding: 0.75rem 1rem;
             color: var(--text-main);
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
             outline: none;
-            transition: all 0.25s ease;
+            cursor: pointer;
         }
 
         .form-control:focus {
-            border-color: var(--accent-indigo);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            background: rgba(15, 23, 42, 1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         select.form-control {
-            cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 1rem center;
-            background-size: 1.2rem;
+            background-size: 1.1rem;
             padding-right: 2.5rem;
         }
 
-        select.form-control option {
-            background-color: #0f172a;
-            color: #f3f4f6;
-        }
-
         .btn-submit {
-            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            background: var(--primary);
             color: #ffffff;
             border: none;
             border-radius: 12px;
-            padding: 0.95rem 1.75rem;
+            padding: 0.85rem 1.5rem;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.6rem;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
-            transition: all 0.3s ease;
+            gap: 0.5rem;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+            height: 46px;
         }
 
         .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(99, 102, 241, 0.5);
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            background: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        /* Alert / Error */
-        .alert-error {
-            background: rgba(244, 63, 94, 0.12);
-            border: 1px solid rgba(244, 63, 94, 0.35);
-            color: #fca5a5;
-            padding: 1rem 1.25rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
+        /* Indicator Switches Bar */
+        .indicator-toggles {
             display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
             align-items: center;
-            gap: 0.75rem;
         }
 
-        /* Metrics Bar */
+        .toggle-label-main {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .checkbox-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: var(--bg-page);
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.825rem;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-pill input[type="checkbox"] {
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Metrics KPI Cards */
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 1.25rem;
             margin-bottom: 2rem;
         }
 
         .metric-card {
             background: var(--bg-card);
-            backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 1.4rem;
+            padding: 1.35rem;
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.35rem;
+            box-shadow: var(--shadow-card);
             position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(to right, transparent, var(--accent-indigo), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .metric-card:hover::after {
-            opacity: 1;
         }
 
         .metric-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .metric-value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.6rem;
+            font-size: 1.55rem;
             font-weight: 700;
-            color: #ffffff;
+            color: var(--text-main);
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            padding: 0.25rem 0.65rem;
+            padding: 0.3rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             width: fit-content;
         }
 
         .badge-bullish {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: var(--badge-bullish-bg);
+            color: var(--color-bullish);
+            border: 1px solid var(--color-bullish);
         }
 
         .badge-bearish {
-            background: rgba(244, 63, 94, 0.15);
-            color: #fb7185;
-            border: 1px solid rgba(244, 63, 94, 0.3);
+            background: var(--badge-bearish-bg);
+            color: var(--color-bearish);
+            border: 1px solid var(--color-bearish);
         }
 
-        /* Chart Section */
+        .badge-neutral {
+            background: var(--badge-neutral-bg);
+            color: var(--color-neutral);
+            border: 1px solid var(--color-neutral);
+        }
+
+        /* Charts Section */
         .chart-card {
             background: var(--bg-card);
-            backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 2rem;
+            border-radius: 18px;
+            padding: 1.75rem;
             margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
         }
 
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
 
         .chart-title h2 {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
+            color: var(--text-main);
         }
 
         .chart-title p {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--text-secondary);
         }
 
-        .chart-legend-custom {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            font-size: 0.85rem;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .legend-color {
-            width: 14px;
-            height: 4px;
-            border-radius: 2px;
-        }
-
-        .legend-hist { background: var(--accent-cyan); }
-        .legend-pred { background: var(--accent-purple); }
-
-        .chart-container {
+        .chart-container-main {
             position: relative;
             height: 420px;
             width: 100%;
         }
 
-        /* Table Card */
+        .sub-charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .sub-charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container-sub {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        /* Evaluation Scorecard Grid */
+        .evaluation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .eval-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .metrics-subgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .metric-box {
+            background: var(--card-sub-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .metric-box-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .metric-box-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Tables */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .table-card {
             background: var(--bg-card);
-            backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 1.75rem 2rem;
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
         }
 
         .table-title {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
         }
 
         .table-wrapper {
@@ -392,48 +538,49 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.95rem;
+            font-size: 0.875rem;
         }
 
         th {
             text-align: left;
-            padding: 0.85rem 1rem;
-            color: var(--text-muted);
-            font-weight: 600;
+            padding: 0.75rem 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 700;
             border-bottom: 1px solid var(--border-color);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         td {
-            padding: 0.9rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
             font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
         }
 
         tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--bg-card-hover);
         }
 
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-muted);
+        .signal-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
 
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.6;
-        }
+        .signal-buy { background: var(--badge-bullish-bg); color: var(--color-bullish); }
+        .signal-sell { background: var(--badge-bearish-bg); color: var(--color-bearish); }
+        .signal-hold { background: var(--badge-neutral-bg); color: var(--color-neutral); }
 
         footer {
             margin-top: 3rem;
             text-align: center;
             font-size: 0.85rem;
-            color: var(--text-dim);
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
         }
     </style>
 </head>
@@ -445,38 +592,55 @@
                 <div class="logo-icon">▲</div>
                 <div class="logo-text">
                     <h1>CryptoPredict AI</h1>
-                    <p>Machine Learning Market Intelligence & Trend Forecaster</p>
+                    <p>Real-Time Price Analysis & Short-Term Market Trend Prediction System</p>
                 </div>
             </div>
-            <div class="header-badge">
-                <span class="live-dot"></span>
-                <span>CoinGecko Live API</span>
+            <div class="header-actions">
+                <!-- Live Real-Time Ticker Badge -->
+                <div class="live-price-ticker-badge" id="liveTickerBadge">
+                    <span class="live-dot"></span>
+                    <span id="liveTickerSymbol" style="font-weight: 700; color: var(--text-main);">{{ coin_id|upper }}</span>
+                    <span id="liveTickerPrice" style="font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 700;">
+                        ${{ "{:,.2f}".format(stats.current_price) if stats else 'Loading...' }}
+                    </span>
+                    <span id="liveTickerChange" style="font-size: 0.78rem;"></span>
+                </div>
+
+                <button class="refresh-btn" id="manualRefreshBtn" onclick="pollLivePrice(true)" title="Fetch exact live price now">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <span id="themeIcon">☀️</span>
+                    <span id="themeLabel">Light Mode</span>
+                </button>
             </div>
         </header>
 
-        <!-- Prediction Controls -->
+        <!-- Advanced Control Panel -->
         <div class="card">
-            <form method="POST" action="/">
+            <form method="POST" action="/" id="predictionForm">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="coin_id">Select Cryptocurrency</label>
-                        <select name="coin_id" id="coin_id" class="form-control" required>
-                            {% for coin in coins %}
-                                <option value="{{ coin.id if coin.id is defined else coin }}" {% if (coin_id == coin.id or coin_id == coin) %}selected{% endif %}>
-                                    {% if coin.name is defined %}
-                                        {{ coin.name }} ({{ coin.symbol|upper }})
-                                    {% else %}
-                                        {{ coin|capitalize }}
-                                    {% endif %}
+                        <label for="coin_id">Select Asset</label>
+                        <select name="coin_id" id="coin_id" class="form-control" required onchange="handleCoinChange()">
+                            {% for c in coins %}
+                                <option value="{{ c.id }}" {% if coin_id == c.id %}selected{% endif %}>
+                                    {{ c.name }} ({{ c.symbol|upper }})
                                 </option>
                             {% endfor %}
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="days">Historical Analysis Window</label>
+                        <label for="days">Analysis Horizon</label>
                         <select name="days" id="days" class="form-control" required>
-                            <option value="7" {% if days == '7' or not days %}selected{% endif %}>Last 7 Days (Hourly)</option>
+                            <option value="7" {% if days == '7' %}selected{% endif %}>Last 7 Days (Hourly)</option>
                             <option value="14" {% if days == '14' %}selected{% endif %}>Last 14 Days</option>
                             <option value="30" {% if days == '30' %}selected{% endif %}>Last 30 Days</option>
                             <option value="90" {% if days == '90' %}selected{% endif %}>Last 90 Days</option>
@@ -485,224 +649,666 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="model">Machine Learning Model</label>
+                        <select name="model" id="model" class="form-control" required>
+                            <option value="rf" {% if model == 'rf' %}selected{% endif %}>Random Forest (Tree Ensemble)</option>
+                            <option value="xgboost" {% if model == 'xgboost' %}selected{% endif %}>XGBoost (Gradient Boosted Trees)</option>
+                            <option value="lstm" {% if model == 'lstm' %}selected{% endif %}>LSTM (Deep Recurrent Neural Net)</option>
+                            <option value="all" {% if model == 'all' %}selected{% endif %}>Ensemble Multi-Model Blend</option>
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn-submit" id="submitBtn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>
-                        <span>Generate Forecast</span>
+                        <span>Execute Forecast</span>
                     </button>
+                </div>
+
+                <!-- Interactive Technical Indicator Display Toggles -->
+                <div class="indicator-toggles">
+                    <span class="toggle-label-main">Chart Overlays:</span>
+                    <label class="checkbox-pill">
+                        <input type="checkbox" id="toggleForecast" checked onchange="updateMainChartLayers()">
+                        <span>ML Forecast Line</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input type="checkbox" id="toggleBB" checked onchange="updateMainChartLayers()">
+                        <span>Bollinger Bands (20, 2σ)</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input type="checkbox" id="toggleSMA" checked onchange="updateMainChartLayers()">
+                        <span>SMA (20 & 50)</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input type="checkbox" id="toggleEMA" onchange="updateMainChartLayers()">
+                        <span>EMA (12 & 26)</span>
+                    </label>
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);" id="autoRefreshStatus">Auto-refresh: <strong>Live (5s)</strong></span>
+                    </div>
                 </div>
             </form>
         </div>
 
         {% if error %}
-        <div class="alert-error">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            <span>{{ error }}</span>
+        <div class="card" style="border-color: var(--color-bearish); background: var(--badge-bearish-bg);">
+            <strong style="color: var(--color-bearish);">Notice:</strong> {{ error }}
         </div>
         {% endif %}
 
         {% if stats %}
-        <!-- Market & AI Metrics -->
+        <!-- Real-Time KPI Metrics Bar -->
         <div class="metrics-grid">
-            <div class="metric-card">
-                <span class="metric-label">Current Price</span>
-                <span class="metric-value">${{ "{:,.2f}".format(stats.current_price) }}</span>
+            <div class="metric-card" id="cardCurrentPrice">
+                <span class="metric-label">
+                    <span>Current Market Price</span>
+                    <span id="liveTimestamp" style="font-size: 0.7rem; color: var(--text-secondary); text-transform: none;">Live Feed</span>
+                </span>
+                <span class="metric-value" id="kpiCurrentPrice">${{ "{:,.2f}".format(stats.current_price) }}</span>
             </div>
+
             <div class="metric-card">
-                <span class="metric-label">Forecasted Target</span>
-                <span class="metric-value">${{ "{:,.2f}".format(stats.target_price) }}</span>
+                <span class="metric-label">Forecasted Target ({{ stats.active_model_name.split()[0] }})</span>
+                <span class="metric-value" id="kpiTargetPrice" style="color: var(--primary);">${{ "{:,.2f}".format(stats.target_price) }}</span>
             </div>
+
             <div class="metric-card">
-                <span class="metric-label">Predicted Change</span>
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
-                    <span class="metric-value" style="font-size: 1.4rem;">
+                <span class="metric-label">Expected Shift vs Current</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.15rem;">
+                    <span class="metric-value" id="kpiShiftPct" style="font-size: 1.4rem; color: {{ 'var(--color-bullish)' if stats.change_pct > 0.75 else ('var(--color-bearish)' if stats.change_pct < -0.75 else 'var(--color-neutral)') }};">
                         {{ "{:+.2f}%".format(stats.change_pct) }}
                     </span>
-                    {% if stats.change_pct >= 0 %}
-                    <span class="badge badge-bullish">▲ Bullish</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <span class="metric-label">Market Trend Classification</span>
+                <div style="margin-top: 0.3rem;" id="kpiTrendContainer">
+                    {% if stats.trend_label == 'Bullish' %}
+                        <span class="badge badge-bullish">▲ BULLISH ({{ stats.confidence }}%)</span>
+                    {% elif stats.trend_label == 'Bearish' %}
+                        <span class="badge badge-bearish">▼ BEARISH ({{ stats.confidence }}%)</span>
                     {% else %}
-                    <span class="badge badge-bearish">▼ Bearish</span>
+                        <span class="badge badge-neutral">◄► NEUTRAL ({{ stats.confidence }}%)</span>
                     {% endif %}
                 </div>
             </div>
-            <div class="metric-card">
-                <span class="metric-label">Model Fit (R²)</span>
-                <span class="metric-value" style="font-size: 1.4rem; color: #a5b4fc;">{{ "{:.3f}".format(stats.r2_score) }}</span>
-            </div>
         </div>
 
-        <!-- Interactive Chart -->
+        <!-- Primary Price & Forecast Interactive Chart -->
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">
-                    <h2>{{ coin_id|capitalize }} Price Trajectory & Linear Projection</h2>
-                    <p>Historical trends with Scikit-Learn regression forecast</p>
-                </div>
-                <div class="chart-legend-custom">
-                    <div class="legend-item">
-                        <span class="legend-color legend-hist"></span>
-                        <span>Historical Price</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color legend-pred"></span>
-                        <span>AI Projection</span>
-                    </div>
+                    <h2>{{ coin_id|capitalize }} Price Trajectory & {{ stats.active_model_name }} Forecast</h2>
+                    <p>Live OHLC close prices with multi-step forecast and technical indicator channels</p>
                 </div>
             </div>
-            <div class="chart-container">
-                <canvas id="predictionChart"></canvas>
+            <div class="chart-container-main">
+                <canvas id="mainChart"></canvas>
             </div>
         </div>
 
-        <!-- Prediction Table -->
-        <div class="table-card">
-            <div class="table-title">Forecast Data Breakdown</div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Forecast Date</th>
-                            <th>Projected Price (USD)</th>
-                            <th>Expected Shift vs Current</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for date, price in predictions.items() %}
-                        <tr>
-                            <td style="color: #cbd5e1;">{{ date }}</td>
-                            <td style="color: #67e8f9; font-weight: 600;">${{ "{:,.2f}".format(price) }}</td>
-                            <td>
-                                {% set shift = ((price - stats.current_price) / stats.current_price) * 100 %}
-                                <span style="color: {{ '#34d399' if shift >= 0 else '#fb7185' }};">
-                                    {{ "{:+.2f}%".format(shift) }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <!-- Technical Indicator Sub-Charts (RSI & MACD) -->
+        <div class="sub-charts-grid">
+            <!-- RSI Sub-Chart -->
+            <div class="chart-card" style="margin-bottom: 0;">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <h2>RSI (14-Period) Oscillator</h2>
+                        <p>Current: <strong>{{ stats.indicator_summary.rsi }}</strong> 
+                            {% if stats.indicator_summary.rsi >= 70 %}
+                                <span style="color: var(--color-bearish); font-weight: 700;">(Overbought)</span>
+                            {% elif stats.indicator_summary.rsi <= 30 %}
+                                <span style="color: var(--color-bullish); font-weight: 700;">(Oversold)</span>
+                            {% else %}
+                                <span style="color: var(--text-secondary);">(Neutral Zone)</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="chart-container-sub">
+                    <canvas id="rsiChart"></canvas>
+                </div>
+            </div>
+
+            <!-- MACD Sub-Chart -->
+            <div class="chart-card" style="margin-bottom: 0;">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <h2>MACD (12, 26, 9) & Momentum Histogram</h2>
+                        <p>MACD: <strong>{{ stats.indicator_summary.macd }}</strong> | Signal: <strong>{{ stats.indicator_summary.signal }}</strong></p>
+                    </div>
+                </div>
+                <div class="chart-container-sub">
+                    <canvas id="macdChart"></canvas>
+                </div>
             </div>
         </div>
-        {% elif not error %}
-        <div class="card empty-state">
-            <div class="empty-icon">📊</div>
-            <h3>Ready to Analyze Crypto Trends</h3>
-            <p>Select an asset and time window above, then click <strong>Generate Forecast</strong> to train the model and view live predictions.</p>
+
+        <!-- Model Evaluation Scorecard -->
+        <div class="evaluation-card" style="margin-top: 2rem;">
+            <div class="eval-title">
+                <span>Model Evaluation & Quantitative Benchmarks ({{ stats.active_model_name }})</span>
+                <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;">Out-of-Sample Test Validation</span>
+            </div>
+            <div class="metrics-subgrid">
+                <div class="metric-box">
+                    <span class="metric-box-label">Mean Absolute Error (MAE)</span>
+                    <span class="metric-box-val">${{ "{:,.2f}".format(stats.metrics.mae) }}</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-box-label">Root Mean Sq Error (RMSE)</span>
+                    <span class="metric-box-val">${{ "{:,.2f}".format(stats.metrics.rmse) }}</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-box-label">Goodness of Fit (R²)</span>
+                    <span class="metric-box-val">{{ "{:.3f}".format(stats.metrics.r2) }}</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-box-label">Directional Accuracy</span>
+                    <span class="metric-box-val" style="color: var(--color-bullish);">{{ stats.metrics.accuracy }}%</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-box-label">Precision Score</span>
+                    <span class="metric-box-val">{{ stats.metrics.precision }}%</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-box-label">Recall Score</span>
+                    <span class="metric-box-val">{{ stats.metrics.recall }}%</span>
+                </div>
+                <div class="metric-box">
+                    <span class="metric-box-label">F1-Score</span>
+                    <span class="metric-box-val" style="color: var(--color-bullish);">{{ stats.metrics.f1_score }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-Model Benchmark Comparison Table & Forecast Table -->
+        <div class="tables-grid">
+            <!-- Multi-Model Comparison Table -->
+            <div class="table-card">
+                <div class="table-title">Machine Learning Model Comparison</div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Model Architecture</th>
+                                <th>Target Price</th>
+                                <th>Exp. Shift</th>
+                                <th>MAE</th>
+                                <th>Accuracy</th>
+                                <th>F1-Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in comparison %}
+                            <tr style="{% if model == row.id %}background: var(--bg-card-hover); font-weight: 700;{% endif %}">
+                                <td>{{ row.name }}</td>
+                                <td style="color: var(--primary);">${{ "{:,.2f}".format(row.target_price) }}</td>
+                                <td style="color: {{ 'var(--color-bullish)' if row.shift_pct > 0 else 'var(--color-bearish)' }};">
+                                    {{ "{:+.2f}%".format(row.shift_pct) }}
+                                </td>
+                                <td>${{ "{:,.2f}".format(row.mae) }}</td>
+                                <td style="color: var(--color-bullish);">{{ row.accuracy }}%</td>
+                                <td>{{ row.f1_score }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Forecast Sequence Breakdown -->
+            <div class="table-card">
+                <div class="table-title">Forward Interval Forecast Breakdown</div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Projected Time</th>
+                                <th>Predicted Price</th>
+                                <th>Expected Shift</th>
+                                <th>Signal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in forecast_table %}
+                            <tr>
+                                <td style="color: var(--text-secondary);">{{ item.timestamp }}</td>
+                                <td style="color: var(--primary); font-weight: 600;">${{ "{:,.2f}".format(item.price) }}</td>
+                                <td style="color: {{ 'var(--color-bullish)' if item.shift_pct >= 0 else 'var(--color-bearish)' }};">
+                                    {{ "{:+.2f}%".format(item.shift_pct) }}
+                                </td>
+                                <td>
+                                    {% if 'Buy' in item.signal %}
+                                        <span class="signal-badge signal-buy">{{ item.signal }}</span>
+                                    {% elif 'Sell' in item.signal %}
+                                        <span class="signal-badge signal-sell">{{ item.signal }}</span>
+                                    {% else %}
+                                        <span class="signal-badge signal-hold">Hold</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         {% endif %}
 
         <footer>
-            <p>Powered by CoinGecko API & Scikit-Learn Machine Learning • Antigravity AI</p>
+            <p>Real-Time Cryptocurrency Analysis & Machine Learning Market Trend Prediction Platform • Developed for Semester Project Evaluation</p>
         </footer>
     </div>
 
     {% if chart_data %}
     <script>
         const chartData = {{ chart_data | tojson }};
-        const ctx = document.getElementById('predictionChart').getContext('2d');
+        const currentCoinId = "{{ coin_id }}";
+        let targetPrice = {{ stats.target_price if stats else 0 }};
+        let lastKnownPrice = {{ stats.current_price if stats else 0 }};
 
-        // Create gradient for historical dataset
-        const gradientHist = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientHist.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
-        gradientHist.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+        let mainChartInstance = null;
+        let rsiChartInstance = null;
+        let macdChartInstance = null;
+        let pricePollInterval = null;
 
-        // Create gradient for prediction dataset
-        const gradientPred = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientPred.addColorStop(0, 'rgba(139, 92, 246, 0.35)');
-        gradientPred.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+        // Theme management
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('cryptopredict_theme', theme);
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            if (theme === 'light') {
+                icon.textContent = '🌙';
+                label.textContent = 'Dark Mode';
+            } else {
+                icon.textContent = '☀️';
+                label.textContent = 'Light Mode';
+            }
+            if (mainChartInstance) renderCharts();
+        }
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: 'Historical Close ($)',
-                        data: chartData.historical_prices,
-                        borderColor: '#06b6d4',
-                        backgroundColor: gradientHist,
-                        borderWidth: 2.5,
-                        fill: true,
-                        pointRadius: chartData.labels.length > 50 ? 0 : 3,
-                        pointHoverRadius: 6,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'AI Forecast ($)',
-                        data: chartData.forecast_prices,
-                        borderColor: '#a855f7',
-                        backgroundColor: gradientPred,
-                        borderWidth: 2.5,
-                        borderDash: [6, 6],
-                        fill: true,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        tension: 0.3
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        }
+
+        // Initialize Theme from localStorage
+        const savedTheme = localStorage.getItem('cryptopredict_theme') || 'dark';
+        applyTheme(savedTheme);
+
+        function formatUSD(val) {
+            if (val >= 1.0) {
+                return '$' + Number(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            } else {
+                return '$' + Number(val).toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 6});
+            }
+        }
+
+        // ==========================================
+        // Live Price Auto-Refresh Poller (Every 5s)
+        // ==========================================
+        async function pollLivePrice(isManual = false) {
+            try {
+                const res = await fetch(`/api/price/${currentCoinId}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.success && data.price) {
+                    const newPrice = data.price;
+                    const change24h = data.change_24h;
+                    const timestamp = data.timestamp;
+
+                    // Update Live Ticker in Header
+                    const tickerPriceEl = document.getElementById('liveTickerPrice');
+                    const tickerChangeEl = document.getElementById('liveTickerChange');
+                    if (tickerPriceEl) {
+                        tickerPriceEl.textContent = formatUSD(newPrice);
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                        titleFont: { family: 'Outfit', size: 13 },
-                        bodyFont: { family: 'JetBrains Mono', size: 13 },
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                        borderWidth: 1,
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                if (context.parsed.y !== null) {
-                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                                }
-                                return null;
+                    if (tickerChangeEl && change24h !== undefined) {
+                        const isPos = change24h >= 0;
+                        tickerChangeEl.textContent = `${isPos ? '+' : ''}${change24h}% (24h)`;
+                        tickerChangeEl.style.color = isPos ? 'var(--color-bullish)' : 'var(--color-bearish)';
+                    }
+
+                    // Update KPI Current Price Card
+                    const kpiPriceEl = document.getElementById('kpiCurrentPrice');
+                    const cardCurrentPrice = document.getElementById('cardCurrentPrice');
+                    const liveTimestampEl = document.getElementById('liveTimestamp');
+
+                    if (kpiPriceEl) {
+                        kpiPriceEl.textContent = formatUSD(newPrice);
+                        
+                        // Flash effect on tick
+                        if (cardCurrentPrice && lastKnownPrice > 0) {
+                            cardCurrentPrice.classList.remove('price-flash-up', 'price-flash-down');
+                            void cardCurrentPrice.offsetWidth; // Trigger reflow
+                            if (newPrice > lastKnownPrice) {
+                                cardCurrentPrice.classList.add('price-flash-up');
+                            } else if (newPrice < lastKnownPrice) {
+                                cardCurrentPrice.classList.add('price-flash-down');
                             }
                         }
                     }
+
+                    if (liveTimestampEl && timestamp) {
+                        liveTimestampEl.textContent = `Live: ${timestamp}`;
+                    }
+
+                    // Dynamically recalculate shift % against target price
+                    if (targetPrice > 0) {
+                        const kpiShiftEl = document.getElementById('kpiShiftPct');
+                        if (kpiShiftEl) {
+                            const newShift = ((targetPrice - newPrice) / newPrice) * 100.0;
+                            kpiShiftEl.textContent = `${newShift >= 0 ? '+' : ''}${newShift.toFixed(2)}%`;
+                            if (newShift > 0.75) {
+                                kpiShiftEl.style.color = 'var(--color-bullish)';
+                            } else if (newShift < -0.75) {
+                                kpiShiftEl.style.color = 'var(--color-bearish)';
+                            } else {
+                                kpiShiftEl.style.color = 'var(--color-neutral)';
+                            }
+                        }
+                    }
+
+                    lastKnownPrice = newPrice;
+                }
+            } catch (err) {
+                console.warn('Live price tick failed:', err);
+            }
+        }
+
+        function startLivePriceStream() {
+            if (pricePollInterval) clearInterval(pricePollInterval);
+            pollLivePrice(); // initial tick
+            pricePollInterval = setInterval(() => {
+                pollLivePrice();
+            }, 5000); // 5-second interval
+        }
+
+        // ==========================================
+        // Chart Render Logic
+        // ==========================================
+        function renderCharts() {
+            const isDark = (document.documentElement.getAttribute('data-theme') || 'dark') === 'dark';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.06)';
+            const textColor = isDark ? '#94A3B8' : '#64748B';
+
+            // 1. Primary Price & Technicals Chart
+            const mainCtx = document.getElementById('mainChart').getContext('2d');
+            if (mainChartInstance) mainChartInstance.destroy();
+
+            const histGradient = mainCtx.createLinearGradient(0, 0, 0, 400);
+            histGradient.addColorStop(0, isDark ? 'rgba(59, 130, 246, 0.35)' : 'rgba(37, 99, 235, 0.25)');
+            histGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+            const showForecast = document.getElementById('toggleForecast').checked;
+            const showBB = document.getElementById('toggleBB').checked;
+            const showSMA = document.getElementById('toggleSMA').checked;
+            const showEMA = document.getElementById('toggleEMA').checked;
+
+            const datasets = [
+                {
+                    label: 'Historical Close ($)',
+                    data: chartData.historical_prices,
+                    borderColor: isDark ? '#3B82F6' : '#2563EB',
+                    backgroundColor: histGradient,
+                    borderWidth: 2.5,
+                    fill: true,
+                    pointRadius: chartData.labels.length > 80 ? 0 : 2.5,
+                    tension: 0.25
                 },
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.04)',
-                            drawBorder: false
+                {
+                    label: 'AI Forecast Projection',
+                    data: chartData.forecast_prices,
+                    borderColor: '#A855F7',
+                    borderWidth: 2.8,
+                    borderDash: [6, 6],
+                    pointRadius: 4,
+                    pointBackgroundColor: '#A855F7',
+                    hidden: !showForecast,
+                    tension: 0.25
+                },
+                // Bollinger Bands
+                {
+                    label: 'Bollinger Upper (+2σ)',
+                    data: chartData.bb_upper,
+                    borderColor: isDark ? 'rgba(148, 163, 184, 0.4)' : 'rgba(100, 116, 139, 0.4)',
+                    borderWidth: 1.2,
+                    borderDash: [3, 3],
+                    pointRadius: 0,
+                    hidden: !showBB
+                },
+                {
+                    label: 'Bollinger Middle (SMA 20)',
+                    data: chartData.bb_middle,
+                    borderColor: isDark ? 'rgba(148, 163, 184, 0.6)' : 'rgba(100, 116, 139, 0.6)',
+                    borderWidth: 1.2,
+                    pointRadius: 0,
+                    hidden: !showBB
+                },
+                {
+                    label: 'Bollinger Lower (-2σ)',
+                    data: chartData.bb_lower,
+                    borderColor: isDark ? 'rgba(148, 163, 184, 0.4)' : 'rgba(100, 116, 139, 0.4)',
+                    borderWidth: 1.2,
+                    borderDash: [3, 3],
+                    pointRadius: 0,
+                    hidden: !showBB
+                },
+                // Moving Averages
+                {
+                    label: 'SMA (20)',
+                    data: chartData.sma_20,
+                    borderColor: '#F59E0B',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    hidden: !showSMA
+                },
+                {
+                    label: 'SMA (50)',
+                    data: chartData.sma_50,
+                    borderColor: '#EC4899',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    hidden: !showSMA
+                },
+                {
+                    label: 'EMA (12)',
+                    data: chartData.ema_12,
+                    borderColor: '#10B981',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    hidden: !showEMA
+                },
+                {
+                    label: 'EMA (26)',
+                    data: chartData.ema_26,
+                    borderColor: '#06B6D4',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    hidden: !showEMA
+                }
+            ];
+
+            mainChartInstance = new Chart(mainCtx, {
+                type: 'line',
+                data: { labels: chartData.labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor,
+                                font: { family: 'Outfit', size: 11.5, weight: '600' },
+                                boxWidth: 12
+                            }
                         },
-                        ticks: {
-                            color: '#9ca3af',
-                            font: { family: 'Outfit', size: 11 },
-                            maxRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 8
+                        tooltip: {
+                            backgroundColor: isDark ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                            titleColor: isDark ? '#F8FAFC' : '#0F172A',
+                            bodyColor: isDark ? '#94A3B8' : '#64748B',
+                            borderColor: isDark ? '#334155' : '#E2E8F0',
+                            borderWidth: 1,
+                            padding: 10,
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            callbacks: {
+                                label: function(ctx) {
+                                    if (ctx.parsed.y !== null) {
+                                        return ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    }
+                                    return null;
+                                }
+                            }
                         }
                     },
-                    y: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.05)',
-                            drawBorder: false
+                    scales: {
+                        x: {
+                            grid: { color: gridColor, drawBorder: false },
+                            ticks: { color: textColor, font: { family: 'Outfit', size: 11 }, maxTicksLimit: 8 }
                         },
-                        ticks: {
-                            color: '#9ca3af',
-                            font: { family: 'JetBrains Mono', size: 11 },
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
+                        y: {
+                            grid: { color: gridColor, drawBorder: false },
+                            ticks: {
+                                color: textColor,
+                                font: { family: 'JetBrains Mono', size: 11 },
+                                callback: function(val) { return '$' + val.toLocaleString(); }
                             }
                         }
                     }
                 }
+            });
+
+            // 2. RSI Sub-Chart
+            const rsiCtx = document.getElementById('rsiChart').getContext('2d');
+            if (rsiChartInstance) rsiChartInstance.destroy();
+
+            rsiChartInstance = new Chart(rsiCtx, {
+                type: 'line',
+                data: {
+                    labels: chartData.hist_labels,
+                    datasets: [
+                        {
+                            label: 'RSI (14)',
+                            data: chartData.rsi,
+                            borderColor: '#8B5CF6',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'Overbought (70)',
+                            data: Array(chartData.hist_labels.length).fill(70),
+                            borderColor: 'rgba(239, 68, 68, 0.5)',
+                            borderDash: [4, 4],
+                            borderWidth: 1.2,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Oversold (30)',
+                            data: Array(chartData.hist_labels.length).fill(30),
+                            borderColor: 'rgba(34, 197, 94, 0.5)',
+                            borderDash: [4, 4],
+                            borderWidth: 1.2,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 }, stepSize: 25 }
+                        }
+                    }
+                }
+            });
+
+            // 3. MACD Sub-Chart
+            const macdCtx = document.getElementById('macdChart').getContext('2d');
+            if (macdChartInstance) macdChartInstance.destroy();
+
+            const histColors = chartData.macd_histogram.map(v => v >= 0 ? (isDark ? 'rgba(34, 197, 94, 0.8)' : 'rgba(22, 163, 74, 0.8)') : (isDark ? 'rgba(239, 68, 68, 0.8)' : 'rgba(220, 38, 38, 0.8)'));
+
+            macdChartInstance = new Chart(macdCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.hist_labels,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Histogram',
+                            data: chartData.macd_histogram,
+                            backgroundColor: histColors,
+                            borderWidth: 0,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'MACD',
+                            data: chartData.macd_line,
+                            borderColor: '#3B82F6',
+                            borderWidth: 1.8,
+                            pointRadius: 0,
+                            order: 1,
+                            tension: 0.2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Signal',
+                            data: chartData.signal_line,
+                            borderColor: '#F59E0B',
+                            borderWidth: 1.8,
+                            pointRadius: 0,
+                            order: 1,
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMainChartLayers() {
+            if (mainChartInstance) {
+                mainChartInstance.data.datasets[1].hidden = !document.getElementById('toggleForecast').checked;
+                mainChartInstance.data.datasets[2].hidden = !document.getElementById('toggleBB').checked;
+                mainChartInstance.data.datasets[3].hidden = !document.getElementById('toggleBB').checked;
+                mainChartInstance.data.datasets[4].hidden = !document.getElementById('toggleBB').checked;
+                mainChartInstance.data.datasets[5].hidden = !document.getElementById('toggleSMA').checked;
+                mainChartInstance.data.datasets[6].hidden = !document.getElementById('toggleSMA').checked;
+                mainChartInstance.data.datasets[7].hidden = !document.getElementById('toggleEMA').checked;
+                mainChartInstance.data.datasets[8].hidden = !document.getElementById('toggleEMA').checked;
+                mainChartInstance.update();
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCharts();
+            startLivePriceStream();
         });
     </script>
     {% endif %}
