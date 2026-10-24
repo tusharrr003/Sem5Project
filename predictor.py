@@ -18,7 +18,7 @@ from ml_models import run_prediction_pipeline
 app = Flask(__name__)
 
 # CoinGecko Demo API Key
-API_KEY = os.getenv("COINGECKO_API_KEY", "CG-nioVvZdxB6U7gPTG8KFaVmvm")
+API_KEY = os.getenv("COINGECKO_API_KEY")
 
 # Default popular coins
 DEFAULT_COINS = [
